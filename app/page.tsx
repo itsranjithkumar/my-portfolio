@@ -1,47 +1,73 @@
+'use client'
+
+import { useEffect, useRef, useState } from 'react'
+import { motion, useMotionValue, useSpring } from 'framer-motion'
+import { ArrowUpRight, Check, ChevronDown, Code2, Mail, Menu, Sparkles, X } from 'lucide-react'
+
+const projects = [
+  { number: '01', name: 'PrepWise', type: 'AI Interview Platform', description: 'An AI-powered interview preparation platform designed to help users practice interviews through intelligent and interactive experiences.', tags: ['Next.js', 'React', 'TypeScript', 'Tailwind CSS', 'FastAPI', 'Firebase', 'Firestore', 'Vapi.ai'], tone: 'violet', available: true },
+  { number: '02', name: 'Full-stack project', type: 'Case study coming soon', description: 'A second project case study will be added here as the work is documented.', tags: ['React', 'Node.js', 'Database'], tone: 'blue', available: false },
+  { number: '03', name: 'AI application', type: 'Case study coming soon', description: 'A third AI or full-stack project will be added here as the work is documented.', tags: ['AI', 'Python', 'APIs'], tone: 'green', available: false },
+]
+
+const skills = [
+  ['Frontend', 'React · Next.js · TypeScript · JavaScript · Tailwind CSS'],
+  ['Backend', 'Python · FastAPI · Node.js · Express'],
+  ['Database', 'PostgreSQL · MongoDB · Firebase · Firestore'],
+  ['AI', 'Claude · LLM APIs · Vapi.ai · AI integrations'],
+  ['Tools', 'Git · GitHub · Docker · Vercel · Netlify'],
+]
+
+const certificates = ['Claude 101', 'AI Fluency: Framework & Foundations', 'AI Fluency for Students', 'Claude Code 101', 'Other relevant certifications']
+
+function Reveal({ children, delay = 0, className = '' }: { children: React.ReactNode; delay?: number; className?: string }) {
+  return <motion.div className={className} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-60px' }} transition={{ duration: .6, delay, ease: [.22, 1, .36, 1] }}>{children}</motion.div>
+}
+
+function SpotlightCard({ children, className = '', onClick }: { children: React.ReactNode; className?: string; onClick?: () => void }) {
+  const ref = useRef<HTMLDivElement>(null)
+  const [spot, setSpot] = useState({ x: 50, y: 50 })
+  const handleMove = (e: React.MouseEvent<HTMLDivElement>) => { const r = ref.current?.getBoundingClientRect(); if (r) setSpot({ x: ((e.clientX - r.left) / r.width) * 100, y: ((e.clientY - r.top) / r.height) * 100 }) }
+  return <div ref={ref} onMouseMove={handleMove} onClick={onClick} className={`spotlight-card ${className}`} style={{ '--spot-x': `${spot.x}%`, '--spot-y': `${spot.y}%` } as React.CSSProperties}>{children}</div>
+}
+
+function Magnetic({ children }: { children: React.ReactNode }) {
+  const x = useMotionValue(0), y = useMotionValue(0), sx = useSpring(x, { stiffness: 260, damping: 20 }), sy = useSpring(y, { stiffness: 260, damping: 20 })
+  return <motion.div style={{ x: sx, y: sy }} onMouseMove={(e) => { const r = e.currentTarget.getBoundingClientRect(); x.set((e.clientX - r.left - r.width / 2) * .16); y.set((e.clientY - r.top - r.height / 2) * .16) }} onMouseLeave={() => { x.set(0); y.set(0) }}>{children}</motion.div>
+}
+
 export default function Page() {
-  return (
-    <main
-      style={{
-        colorScheme: 'light dark',
-        position: 'relative',
-        display: 'flex',
-        minHeight: '100vh',
-        alignItems: 'center',
-        justifyContent: 'center',
-        backgroundColor: 'light-dark(#fff, #000)',
-        color: 'light-dark(#000, #fff)',
-      }}
-    >
-      <svg
-        aria-hidden="true"
-        style={{ width: 80, height: 80 }}
-        width={80}
-        height={80}
-        fill="none"
-        viewBox="0 0 20 20"
-        xmlns="http://www.w3.org/2000/svg"
-        stroke="currentColor"
-        strokeWidth="0.5"
-      >
-        <path
-          d="M14.2 14.2H17V6.9375C17 4.76288 15.2371 3 13.0625 3H5.8V5.8M14.2 14.2V7.79063L7.79062 14.2H14.2ZM14.2 14.2V17H6.9375C4.76288 17 3 15.2371 3 13.0625V5.8H5.8M5.8 5.8V12.2313L12.2313 5.8H5.8Z"
-          strokeLinejoin="round"
-        />
-      </svg>
-      <p
-        style={{
-          position: 'absolute',
-          left: '50%',
-          top: 'calc(50% + 56px)',
-          transform: 'translateX(-50%)',
-          whiteSpace: 'nowrap',
-          fontSize: '14px',
-          fontWeight: 500,
-          color: 'light-dark(#71717a, #a1a1aa)',
-        }}
-      >
-        Your v0 generation will show here.
-      </p>
-    </main>
-  )
+  const [menu, setMenu] = useState(false)
+  const [selected, setSelected] = useState<typeof projects[number] | null>(null)
+  const [mouse, setMouse] = useState({ x: -200, y: -200 })
+  useEffect(() => { const move = (e: MouseEvent) => setMouse({ x: e.clientX, y: e.clientY }); window.addEventListener('mousemove', move); return () => window.removeEventListener('mousemove', move) }, [])
+  return <main>
+    <div className="cursor-glow" style={{ left: mouse.x, top: mouse.y }} aria-hidden="true" />
+    <nav className="nav-shell"><a href="#top" className="brand">RK<span>.</span></a><div className={`nav-links ${menu ? 'is-open' : ''}`}>{['Work', 'About', 'Experience', 'Certifications', 'Contact'].map((item) => <a key={item} href={`#${item.toLowerCase()}`} onClick={() => setMenu(false)}>{item}</a>)}</div><button className="menu-button" aria-label={menu ? 'Close menu' : 'Open menu'} onClick={() => setMenu(!menu)}>{menu ? <X /> : <Menu />}</button><a className="nav-availability" href="mailto:hello@ranjithkumar.dev"><span /> Available for opportunities</a></nav>
+
+    <section id="top" className="hero section-wrap"><div className="hero-grid" aria-hidden="true" /><div className="hero-copy"><Reveal><p className="eyebrow"><span className="eyebrow-dot" /> FULL STACK DEVELOPER <span className="slash">/</span> AI BUILDER</p></Reveal><Reveal delay={.08}><h1>Building <em>AI-powered</em><br />digital products.</h1></Reveal><Reveal delay={.16}><p className="hero-lede">Full Stack Developer with professional experience building modern web applications using React, Next.js, TypeScript and Python. Currently pursuing an MBA in Business Analytics & Finance.</p></Reveal><Reveal delay={.24}><div className="hero-actions"><Magnetic><a href="#work" className="button button-primary">View Projects <ArrowUpRight /></a></Magnetic><a href="/resume.pdf" className="button button-ghost">Download Resume <ArrowUpRight /></a></div></Reveal><Reveal delay={.3}><div className="social-row"><a href="https://github.com" target="_blank" rel="noreferrer"><Code2 /> GitHub</a><a href="https://linkedin.com" target="_blank" rel="noreferrer"><ArrowUpRight /> LinkedIn</a><a href="mailto:hello@ranjithkumar.dev"><Mail /> Email</a></div></Reveal></div><div className="hero-meta"><span>Based in India</span><span>Scroll to explore <ChevronDown /></span></div></section>
+
+    <section className="status-strip section-wrap"><div className="status-label"><span className="pulse" /> CURRENTLY</div><div><strong>MBA — Business Analytics & Finance</strong><p>SNS College of Technology · 2025–2027</p></div><div><strong>Building AI-powered web applications</strong><p>Exploring AI application development, analytics and product development.</p></div></section>
+
+    <section id="about" className="section-wrap section"><Reveal><p className="section-kicker">01 / ABOUT</p><h2>A developer who thinks<br /><span>beyond code.</span></h2></Reveal><div className="about-grid"><Reveal delay={.1}><p className="large-copy">I&apos;m a Full Stack Developer with professional experience building modern web applications. Alongside software development, I&apos;m pursuing an MBA in Business Analytics & Finance, allowing me to combine technology, business thinking and data-driven decision making.</p><p className="body-copy">I enjoy building products that solve real problems, integrating AI into applications and turning ideas into practical digital experiences.</p></Reveal><div className="stat-grid">{[['1+', 'Years Experience'], ['MBA', 'Business Analytics & Finance'], ['FULL STACK', 'React · Next.js · Python'], ['AI', 'Application Development']].map(([value, label], i) => <Reveal key={label} delay={i * .06}><SpotlightCard className="stat-card"><strong>{value}</strong><span>{label}</span></SpotlightCard></Reveal>)}</div></div></section>
+
+    <section id="work" className="section-wrap section"><Reveal><p className="section-kicker">02 / SELECTED WORK</p><div className="section-heading"><h2>Work that makes<br /><span>an impact.</span></h2><p>A collection of applications I&apos;ve designed and built.</p></div></Reveal><div className="project-stack">{projects.map((project, i) => <Reveal key={project.number} delay={i * .08}><SpotlightCard className={`project-card ${project.tone}`} onClick={() => project.available && setSelected(project)}><div className="project-preview"><div className="preview-chrome"><span /><span /><span /><small>{project.name.toLowerCase()}.app</small></div><div className="preview-content"><div className="preview-orb"><Sparkles /></div><span>INTERVIEW<br />SMARTER</span><div className="preview-lines"><i /><i /><i /></div></div></div><div className="project-info"><div><p className="project-number">{project.number}</p><h3>{project.name}</h3><p className="project-type">{project.type}</p><p className="project-description">{project.description}</p><div className="tag-row">{project.tags.map(tag => <span key={tag}>{tag}</span>)}</div></div><div className="project-arrow">{project.available ? <ArrowUpRight /> : <span>SOON</span>}</div></div></SpotlightCard></Reveal>)}</div></section>
+
+    <section id="experience" className="section-wrap section split-section"><div><Reveal><p className="section-kicker">03 / EXPERIENCE</p><h2>Built with<br /><span>intention.</span></h2></Reveal><Reveal delay={.1}><p className="body-copy intro-copy">Professional experience shipping full-stack products and learning how great software connects with people and business.</p></Reveal></div><Reveal delay={.15}><div className="timeline"><div className="timeline-line" /><div className="timeline-item"><span className="timeline-dot" /><p className="timeline-date">JUN 2024 — AUG 2025</p><h3>Full Stack Developer</h3><p className="company">Magizh Technologies</p><p className="body-copy">Built and contributed to modern web applications across the full stack, working with frontend interfaces, backend services and data-driven product experiences.</p><div className="tag-row"><span>React</span><span>Next.js</span><span>TypeScript</span><span>Python</span></div></div></div></Reveal></section>
+
+    <section className="section-wrap section analytics-section"><Reveal><p className="section-kicker">04 / THE DIFFERENTIATOR</p><h2>Where technology<br /><span>meets business.</span></h2></Reveal><div className="triad"><SpotlightCard><Code2 /><p>TECHNOLOGY</p><strong>Full Stack<br />Development</strong></SpotlightCard><SpotlightCard><Sparkles /><p>BUSINESS</p><strong>MBA — Business<br />Analytics & Finance</strong></SpotlightCard><SpotlightCard><ArrowUpRight /><p>AI</p><strong>Intelligent<br />Applications</strong></SpotlightCard></div><div className="interest-row">{['Business Analytics', 'Data-Driven Decisions', 'Product Development', 'AI Applications', 'Technology Consulting'].map(x => <span key={x}>{x}</span>)}</div></section>
+
+    <section className="section-wrap section"><Reveal><p className="section-kicker">05 / TOOLS</p><div className="section-heading"><h2>Tools I build<br /><span>with.</span></h2><p>Curious by default. Practical by design.</p></div></Reveal><div className="skills-grid">{skills.map(([name, tools], i) => <Reveal key={name} delay={i * .05}><SpotlightCard className="skill-card"><p>{name}</p><strong>{tools}</strong><ArrowUpRight /></SpotlightCard></Reveal>)}</div></section>
+
+    <section className="section-wrap section ai-section"><Reveal><p className="section-kicker">06 / AI APPLICATIONS</p><h2>Building with AI,<br /><span>not just talking about AI.</span></h2></Reveal><div className="workflow">{['User', 'Frontend', 'API', 'AI Model', 'Data', 'Intelligent Result'].map((step, i) => <div className="workflow-step" key={step}><div className="workflow-node">{i === 0 ? '01' : i === 5 ? <Check /> : `0${i + 1}`}</div><span>{step}</span>{i < 5 && <div className="workflow-connector" />}</div>)}</div><div className="ai-tags">{['AI Applications', 'LLM Integration', 'Voice AI', 'AI APIs', 'Prompt Engineering', 'AI Workflows'].map(x => <span key={x}><Sparkles />{x}</span>)}</div></section>
+
+    <section id="certifications" className="section-wrap section"><Reveal><p className="section-kicker">07 / CERTIFICATIONS</p><h2>Always learning.<br /><span>Always shipping.</span></h2></Reveal><div className="cert-grid">{certificates.map((cert, i) => <Reveal key={cert} delay={i * .06}><SpotlightCard className="cert-card"><div className="cert-mark">{i === 4 ? '•••' : 'C'}</div><p>{cert}</p><span>Certificate · Date to be added</span><a href="#contact">View certificate <ArrowUpRight /></a></SpotlightCard></Reveal>)}</div></section>
+
+    <section className="section-wrap section learning-section"><Reveal><p className="section-kicker">08 / LEARNING JOURNEY</p><h2>Learning in<br /><span>public.</span></h2></Reveal><SpotlightCard className="learning-card"><div className="learning-logo">U<span>H</span></div><div><p className="section-kicker">UNIVERSITY OF HELSINKI</p><h3>Full Stack Open</h3><p className="body-copy">A deep dive into modern web development, from React and Node.js to testing, GraphQL, TypeScript and CI/CD.</p><div className="tag-row">{['React', 'Node.js', 'GraphQL', 'TypeScript', 'CI/CD'].map(x => <span key={x}>{x}</span>)}</div></div><ArrowUpRight /></SpotlightCard></section>
+
+    <section id="contact" className="contact-section section-wrap"><div className="contact-grid" aria-hidden="true" /> <Reveal><p className="section-kicker">09 / CONTACT</p><h2>Let&apos;s build<br /><em>something useful.</em></h2><p>Have an opportunity, idea or project in mind?<br />Let&apos;s connect.</p><div className="hero-actions"><Magnetic><a className="button button-primary" href="mailto:hello@ranjithkumar.dev">Email Me <Mail /></a></Magnetic><a className="button button-ghost" href="https://linkedin.com" target="_blank" rel="noreferrer">LinkedIn <ArrowUpRight /></a></div></Reveal></section>
+    <footer className="footer section-wrap"><div><a className="brand" href="#top">RK<span>.</span></a><p>Full Stack Developer · AI · Business Analytics</p></div><div className="footer-links"><a href="https://github.com" target="_blank" rel="noreferrer">GitHub</a><a href="https://linkedin.com" target="_blank" rel="noreferrer">LinkedIn</a><a href="mailto:hello@ranjithkumar.dev">Email</a></div><span>© 2026 Ranjith Kumar M.S.</span></footer>
+
+    {selected && <div className="modal-backdrop" role="presentation" onClick={() => setSelected(null)}><div className="case-modal" role="dialog" aria-modal="true" aria-labelledby="case-title" onClick={e => e.stopPropagation()}><button className="modal-close" onClick={() => setSelected(null)} aria-label="Close project details"><X /></button><p className="section-kicker">PROJECT {selected.number}</p><h2 id="case-title">{selected.name}</h2><p className="project-type">{selected.type}</p><p className="large-copy">{selected.description}</p><div className="case-grid"><div><span>OVERVIEW</span><p>A focused product experience built around thoughtful interaction, clear information architecture and useful AI capabilities.</p></div><div><span>TECHNOLOGY</span><p>{selected.tags.join(' · ')}</p></div><div><span>STATUS</span><p>Case study documentation in progress.</p></div></div><div className="hero-actions"><a className="button button-primary" href="#contact" onClick={() => setSelected(null)}>Let&apos;s talk <ArrowUpRight /></a></div></div></div>}
+  </main>
 }
